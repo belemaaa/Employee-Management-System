@@ -111,7 +111,8 @@ class UpdateEmployeeData(APIView):
             serializer = serializers.EmployeeSerializer(employee, data=request.data)
             if serializer.is_valid():
                 serializer.save()
-                return Response({'message': 'Employee data updated.'}, status=status.HTTP_200_OK)
+                return Response({'message': 'Employee data updated.',
+                                 'Employee_data': serializer.data}, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except models.Employee.DoesNotExist:
             return Response({'error': 'Employee not found.'}, status=status.HTTP_404_NOT_FOUND)
