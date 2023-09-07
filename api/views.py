@@ -92,12 +92,13 @@ class GetEmployeeDetails(APIView):
 
     def get(self, request, employee_id):
         try:
-            queryset = models.Employee.objects.get(id=employee_id)
+            user = request.user
+            queryset = models.Employee.objects.get(id=employee_id, user=user)
             serializer = serializers.EmployeeSerializer(queryset, many=False)
-
-            return Response({'employee_data': serializer.data}, status=status.HTTP_200_OK)
+            return Response({'Employee_data': serializer.data}, status=status.HTTP_200_OK)
+        
         except models.Employee.DoesNotExist:
-            return Response({'error': 'employee now found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'Employee not found'}, status=status.HTTP_404_NOT_FOUND)
 
 class UpdateEmployeeData(APIView):
     authentication_classes = [TokenAuthentication]
@@ -105,9 +106,12 @@ class UpdateEmployeeData(APIView):
 
     def put(self, request, employee_id):
         try:
-            employee = models.Employee.objects.get(id=employee_id, user=request.data)
+            user = request.user
+            employee = models.Employee.objects.get(id=employee_id, user=user)
             serializer = serializers.EmployeeSerializer(employee, data=request.data)
             if serializer.is_valid():
-                pass
+                serializer.save()
+                return Response({'message': 'Employee data updated.'}, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except models.Employee.DoesNotExist:
-            pass
+            return Response({'error': 'Employee not found.'}, status=status.HTTP_404_NOT_FOUND)
