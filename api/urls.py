@@ -7,4 +7,5 @@ urlpatterns = [
     path('login/', views.AdminLogin.as_view()),
     path('employee/create/', views.CreateEmployee.as_view()),
     path('employee/view/', views.GetEmployees.as_view()),
+    path('employee/detail/<int:employee_id>/', views.GetEmployeeDetails.as_view()),
 ]

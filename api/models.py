@@ -12,7 +12,6 @@ class Employee(models.Model):
     last_name = models.CharField(max_length=255)
     email = models.EmailField(default='noemail@example.com')
     phone_number = models.CharField(max_length=255)
-    employee_id = models.CharField(max_length=255, null=True, blank=True)
     address = models.CharField(max_length=255)
     position = models.CharField(max_length=255)
     sex = models.CharField(max_length=255)

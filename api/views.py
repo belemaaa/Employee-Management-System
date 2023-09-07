@@ -85,7 +85,20 @@ class GetEmployees(APIView):
         serializer = serializers.EmployeeSerializer(queryset, many=True)
         
         return Response({'employee_data': serializer.data}, status=status.HTTP_200_OK)
-    
+
+class GetEmployeeDetails(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, employee_id):
+        try:
+            queryset = models.Employee.objects.get(id=employee_id)
+            serializer = serializers.EmployeeSerializer(queryset, many=False)
+
+            return Response({'employee_data': serializer.data}, status=status.HTTP_200_OK)
+        except models.Employee.DoesNotExist:
+            return Response({'error': 'employee now found'}, status=status.HTTP_404_NOT_FOUND)
+
 class UpdateEmployeeData(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
