@@ -115,8 +115,9 @@ class SearchEmployee(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     def get(self, request):
+        user = request.user
         search_query = self.request.query_params.get('search_query', None)
-        queryset = models.Employee.objects.all()
+        queryset = models.Employee.objects.filter(user=user)
         if search_query:
             queryset = queryset.filter(
                 Q(first_name__icontains=search_query)|
