@@ -7,7 +7,7 @@ class Admin(AbstractUser):
         return self.username
     
 class Employee(models.Model):
-    user = models.ForeignKey(Admin, on_delete=models.CASCADE)
+    user = models.ForeignKey(Admin, on_delete=models.CASCADE, default=None)
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     email = models.EmailField(default='noemail@example.com')

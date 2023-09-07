@@ -14,6 +14,26 @@ class AdminLoginSerializer(serializers.Serializer):
 
 
 class EmployeeSerializer(serializers.ModelSerializer):
+    employee_id = serializers.SerializerMethodField()
+
     class Meta:
         model = Employee
-        fields = '__all__'
+        fields = [
+            'user',
+            'employee_id',
+            'first_name',
+            'last_name',
+            'email',
+            'phone_number',
+            'address',
+            'position',
+            'sex',
+            'state_of_origin',
+            'date_of_birth',
+            'created_at'
+        ]
+    
+    def get_employee_id(self, obj):
+        return {
+            'id': obj.id
+        }

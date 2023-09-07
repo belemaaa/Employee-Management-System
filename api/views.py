@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from . import serializers
 from . import models
 from rest_framework import status
-from rest_framework.authentication import TokenAuthentication
+from .authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
 
@@ -47,6 +47,7 @@ class AdminLogin(APIView):
             if user is not None and check_password(password, user.password):
                 token, created = Token.objects.get_or_create(user=user)
                 return Response({'message': 'login successful',
+                                 'user_id': user.id,
                                  'access_token': token.key}, status=status.HTTP_200_OK) 
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -63,7 +64,6 @@ class CreateEmployee(APIView):
             last_name = serializer.validated_data.get('last_name')
             email = serializer.validated_data.get('email')
             phone_number = serializer.validated_data.get('phone_number')
-            employee_id = serializer.validated_data.get('employee_id')
             address = serializer.validated_data.get('address')
             position = serializer.validated_data.get('position')
             sex = serializer.validated_data.get('sex')
@@ -72,5 +72,16 @@ class CreateEmployee(APIView):
 
             serializer.save(user=self.request.user)
             return Response({'message': 'Employee creation was successful',
-                             'data': serializer.data}, status=status.HTTP_201_CREATED)
+                             'employee_data': serializer.data}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class GetEmployees(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        queryset = models.Employee.objects.filter(user=user)
+        serializer = serializers.EmployeeSerializer(queryset, many=True)
+        
+        return Response({'employee_data': serializer.data}, status=status.HTTP_200_OK)
