@@ -129,3 +129,14 @@ class SearchEmployee(APIView):
         serializer = serializers.EmployeeSerializer(queryset, many=True)
         return Response({'data': serializer.data}, status=status.HTTP_200_OK)
     
+class DeleteEmployee(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    def delete(self, request, employee_id):
+        try:
+            user = request.user
+            employee = models.Employee.objects.get(id=employee_id, user=user)
+            employee.delete()
+            return Response({'message': 'Employee deleted successfully.'}, status=status.HTTP_200_OK)
+        except models.Employee.DoesNotExist:
+            return Response({'error': 'Employee not found'}, status=status.HTTP_404_NOT_FOUND)
