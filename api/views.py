@@ -8,6 +8,7 @@ from rest_framework import status
 from .authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
+from django.db.models import Q
 
 
 class AdminSignup(APIView):
@@ -16,7 +17,6 @@ class AdminSignup(APIView):
 
     def post(self, request):
         serializer = serializers.AdminSignupSerializer(data=request.data)
-
         if serializer.is_valid():
             username = serializer.validated_data.get('username')
             email = serializer.validated_data.get('password')
@@ -36,7 +36,6 @@ class AdminLogin(APIView):
 
     def post(self, request):
         serializer = serializers.AdminLoginSerializer(data=request.data)
-
         if serializer.is_valid():
             username = serializer.validated_data.get('username')
             password = serializer.validated_data.get('password')
@@ -58,7 +57,6 @@ class CreateEmployee(APIView):
 
     def post(self, request):
         serializer = serializers.EmployeeSerializer(data=request.data)
-
         if serializer.is_valid():
             first_name = serializer.validated_data.get('first_name')
             last_name = serializer.validated_data.get('last_name')
@@ -78,7 +76,6 @@ class CreateEmployee(APIView):
 class GetEmployees(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
-
     def get(self, request):
         user = request.user
         queryset = models.Employee.objects.filter(user=user)
@@ -89,7 +86,6 @@ class GetEmployees(APIView):
 class GetEmployeeDetails(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
-
     def get(self, request, employee_id):
         try:
             user = request.user
@@ -103,7 +99,6 @@ class GetEmployeeDetails(APIView):
 class UpdateEmployeeData(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
-
     def put(self, request, employee_id):
         try:
             user = request.user
@@ -116,3 +111,21 @@ class UpdateEmployeeData(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except models.Employee.DoesNotExist:
             return Response({'error': 'Employee not found.'}, status=status.HTTP_404_NOT_FOUND)
+        
+class SearchEmployee(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        search_query = self.request.query_params.get('search_query', None)
+        queryset = models.Employee.objects.filter(search_query)
+        if search_query:
+            queryset = queryset.filter(
+                Q(first_name__icontains=search_query)|
+                Q(last_name__icontains=search_query)|
+                Q(position__icontains=search_query)|
+                Q(sex__icontains=search_query)|
+                Q(state_of_origin__icontains=search_query)
+            )
+        serializer = serializers.EmployeeSerializer(queryset, many=True)
+        return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+    
