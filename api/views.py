@@ -5,6 +5,8 @@ from rest_framework.response import Response
 from . import serializers
 from . import models
 from rest_framework import status
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.authtoken.models import Token
 
 
 class AdminSignup(APIView):
@@ -37,3 +39,15 @@ class AdminLogin(APIView):
         if serializer.is_valid():
             username = serializer.validated_data.get('username')
             password = serializer.validated_data.get('password')
+            try:
+                user = models.Admin.objects.get(username=username)
+            except models.Admin.DoesNotExist:
+                user = None
+            if user is not None and check_password(password, user.password):
+                access_token = Token.objects.get_or_create(user=user)
+                return Response({'message': 'login successful', 'access_token': access_token.key}, status=status.HTTP_200_OK)
+            return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class CreateEmployee(APIView):
+    pass
