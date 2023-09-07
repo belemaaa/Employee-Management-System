@@ -85,3 +85,16 @@ class GetEmployees(APIView):
         serializer = serializers.EmployeeSerializer(queryset, many=True)
         
         return Response({'employee_data': serializer.data}, status=status.HTTP_200_OK)
+    
+class UpdateEmployeeData(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, employee_id):
+        try:
+            employee = models.Employee.objects.get(id=employee_id, user=request.data)
+            serializer = serializers.EmployeeSerializer(employee, data=request.data)
+            if serializer.is_valid():
+                pass
+        except models.Employee.DoesNotExist:
+            pass

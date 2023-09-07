@@ -15,11 +15,9 @@ class AdminLoginSerializer(serializers.Serializer):
 
 class EmployeeSerializer(serializers.ModelSerializer):
     employee_id = serializers.SerializerMethodField()
-
     class Meta:
         model = Employee
         fields = [
-            'user',
             'employee_id',
             'first_name',
             'last_name',
@@ -32,7 +30,6 @@ class EmployeeSerializer(serializers.ModelSerializer):
             'date_of_birth',
             'created_at'
         ]
-    
     def get_employee_id(self, obj):
         return {
             'id': obj.id
