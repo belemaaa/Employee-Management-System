@@ -10,7 +10,6 @@ from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q
 
-
 class AdminSignup(APIView):
     authentication_classes = []
     permission_classes = []
@@ -117,7 +116,7 @@ class SearchEmployee(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
         search_query = self.request.query_params.get('search_query', None)
-        queryset = models.Employee.objects.filter(search_query)
+        queryset = models.Employee.objects.all()
         if search_query:
             queryset = queryset.filter(
                 Q(first_name__icontains=search_query)|
