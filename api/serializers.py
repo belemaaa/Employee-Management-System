@@ -15,12 +15,11 @@ class AdminLoginSerializer(serializers.Serializer):
 
 class EmployeeSerializer(serializers.ModelSerializer):
     employee_id = serializers.SerializerMethodField()
-    employee_image = serializers.ImageField(source='image')
     class Meta:
         model = Employee
         fields = [
             'employee_id',
-            'employee_image',
+            'image',
             'first_name',
             'last_name',
             'email',

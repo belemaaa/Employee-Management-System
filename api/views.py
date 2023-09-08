@@ -69,16 +69,18 @@ class CreateEmployee(APIView):
             sex = serializer.validated_data.get('sex')
             state_of_origin = serializer.validated_data.get('state_of_origin')
             date_of_birth = serializer.validated_data.get('date_of_birth')
-            employee_image = request.data.get('image')
-            if employee_image:
+            image = request.data.get('image')
+            if image:
                 # upload the image to Cloudinary
-                uploaded_image = upload(employee_image)
+                uploaded_image = upload(image)
                 serializer.validated_data['image'] = uploaded_image['secure_url']
+            else:
+                serializer.validated_data.pop('image', None)
 
             serializer.save(user=self.request.user)
             return Response({'message': 'Employee creation was successful',
                              'employee_data': serializer.data}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(request.data, status=status.HTTP_400_BAD_REQUEST)
 
 class GetEmployees(APIView):
     authentication_classes = [TokenAuthentication]
