@@ -2,15 +2,16 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from django.contrib.auth.hashers import make_password, check_password
 from rest_framework.response import Response
-from . import serializers
-from . import models
 from rest_framework import status
 from .authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
+from cloudinary.uploader import upload
 from django.db.models import Q
 from functools import reduce
 from operator import or_
+from . import serializers
+from . import models
 
 class AdminSignup(APIView):
     authentication_classes = []
@@ -56,7 +57,7 @@ class CreateEmployee(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         serializer = serializers.EmployeeSerializer(data=request.data)
         if serializer.is_valid():
             first_name = serializer.validated_data.get('first_name')
@@ -68,6 +69,12 @@ class CreateEmployee(APIView):
             sex = serializer.validated_data.get('sex')
             state_of_origin = serializer.validated_data.get('state_of_origin')
             date_of_birth = serializer.validated_data.get('date_of_birth')
+            image = request.data.get('image')
+
+            if image:
+                # upload the image to Cloudinary
+                uploaded_image = upload(image)
+                serializer.validated_data['image'] = uploaded_image['secure_url']
 
             serializer.save(user=self.request.user)
             return Response({'message': 'Employee creation was successful',
@@ -122,7 +129,7 @@ class SearchEmployee(APIView):
         queryset = models.Employee.objects.filter(user=user)
         if search_query:
             search_parts = search_query.split()
-            
+
             if len(search_parts) == 2:
                 first_name, last_name = search_parts
                 queryset = queryset.filter(Q(first_name__icontains=first_name) & Q(last_name__icontains=last_name))
