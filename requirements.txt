@@ -3,3 +3,5 @@ djangorestframework
 requests
 django-cors-headers
 django-jazzmin
+django_cloudinary_storage
+Pillow
