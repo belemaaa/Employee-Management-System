@@ -9,6 +9,8 @@ from .authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q
+from functools import reduce
+from operator import or_
 
 class AdminSignup(APIView):
     authentication_classes = []
@@ -119,13 +121,15 @@ class SearchEmployee(APIView):
         search_query = self.request.query_params.get('q', None)
         queryset = models.Employee.objects.filter(user=user)
         if search_query:
-            queryset = queryset.filter(
-                Q(first_name__icontains=search_query)|
-                Q(last_name__icontains=search_query)|
-                Q(position__icontains=search_query)|
-                Q(sex__icontains=search_query)|
-                Q(state_of_origin__icontains=search_query)
-            )
+            search_parts = search_query.split()
+            
+            if len(search_parts) == 2:
+                first_name, last_name = search_parts
+                queryset = queryset.filter(Q(first_name__icontains=first_name) & Q(last_name__icontains=last_name))
+            else:
+                query_parts = [Q(first_name__icontains=part) | Q(last_name__icontains=part) for part in search_parts]
+                combined_query = reduce(or_, query_parts)
+                queryset = queryset.filter(combined_query)
         serializer = serializers.EmployeeSerializer(queryset, many=True)
         return Response({'data': serializer.data}, status=status.HTTP_200_OK)
     
