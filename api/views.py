@@ -70,7 +70,6 @@ class CreateEmployee(APIView):
             state_of_origin = serializer.validated_data.get('state_of_origin')
             date_of_birth = serializer.validated_data.get('date_of_birth')
             employee_image = request.data.get('image')
-
             if employee_image:
                 # upload the image to Cloudinary
                 uploaded_image = upload(employee_image)
