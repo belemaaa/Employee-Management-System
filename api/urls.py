@@ -9,6 +9,6 @@ urlpatterns = [
     path('employee/view/', views.GetEmployees.as_view()),
     path('employee/detail/<int:employee_id>/', views.GetEmployeeDetails.as_view()),
     path('employee/update/<int:employee_id>/', views.UpdateEmployeeData.as_view()),
-    path('employee/search/', views.SearchEmployee.as_view()),
+    path('employee/search', views.SearchEmployee.as_view()),
     path('employee/delete/<int:employee_id>/', views.DeleteEmployee.as_view()),
 ]
