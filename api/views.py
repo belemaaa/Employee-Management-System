@@ -80,7 +80,7 @@ class CreateEmployee(APIView):
             serializer.save(user=self.request.user)
             return Response({'message': 'Employee creation was successful',
                              'employee_data': serializer.data}, status=status.HTTP_201_CREATED)
-        return Response(request.data, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class GetEmployees(APIView):
     authentication_classes = [TokenAuthentication]
