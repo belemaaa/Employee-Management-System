@@ -71,7 +71,7 @@ class CreateEmployee(APIView):
             date_of_birth = serializer.validated_data.get('date_of_birth')
             image = request.data.get('image')
             if image:
-                # upload the image to Cloudinary
+                # upload image to cloudinary storage
                 uploaded_image = upload(image)
                 serializer.validated_data['image'] = uploaded_image['secure_url']
             else:
